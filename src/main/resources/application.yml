@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    stream:
+      bindings:
+        process-in-0:
+          destination: temperature
+        process-out-0:
+          destination: anomalies
+      # process-out-1:
+        # destination: normal
+      kafka:
+        streams:
+          binder:
+            configuration:
+              commit.interval.ms: 10000
+            replicationFactor: 1
+            brokers: 172.18.0.1:32772
+            processing.guarantee: exactly-once
+            applicationId: analysis-1
+
+main:
+  config:
+    timeWindowSize: 10
+    observationsGroupSize: 10
+    # timeWindow / observationsGroup
+    algorithm: observationsGroup
+    trivialThreshold: 30.0
+    diffThreshold: 5.0
+    materializedTable: analysis-1
