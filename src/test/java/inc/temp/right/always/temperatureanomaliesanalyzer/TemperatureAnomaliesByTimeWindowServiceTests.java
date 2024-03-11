@@ -83,7 +83,7 @@ public class TemperatureAnomaliesByTimeWindowServiceTests {
 
         // Mocking spy
 
-        when(temperatureAnomaliesByTimeWindowService.calculateAnomalies(agg3, 5.0)).thenReturn(agg2);
+        doReturn(agg2).when(temperatureAnomaliesByTimeWindowService).calculateAnomalies(agg3, 5.0);
 
         // Running
 
@@ -137,7 +137,7 @@ public class TemperatureAnomaliesByTimeWindowServiceTests {
 
         // Mocking spy
 
-        when(temperatureAnomaliesByTimeWindowService.calculateAnomalies(agg3, 5.0)).thenReturn(agg2);
+        doReturn(agg2).when(temperatureAnomaliesByTimeWindowService).calculateAnomalies(agg3, 5.0);
 
         // Running
 

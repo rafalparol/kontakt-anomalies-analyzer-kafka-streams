@@ -1,15 +1,14 @@
 package inc.temp.right.always.temperatureanomaliesanalyzer;
 
 import inc.temp.right.always.temperatureanomaliesanalyzer.dto.MeasurementsObservationsGroupAnalyzer;
-import inc.temp.right.always.temperatureanomaliesanalyzer.dto.MeasurementsTimeWindowAnalyzer;
 import inc.temp.right.always.temperatureanomaliesanalyzer.services.TemperatureAnomaliesByObservationsGroupService;
-import inc.temp.right.always.temperatureanomaliesanalyzer.services.TemperatureAnomaliesByTimeWindowService;
 import inc.temp.right.always.temperaturemodel.TemperatureMeasurement;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -79,7 +78,7 @@ public class TemperatureAnomaliesByObservationsGroupServiceTests {
 
         // Mocking spy
 
-        when(temperatureAnomaliesByObservationsGroupService.calculateAnomalies(agg3, 10, 5.0)).thenReturn(agg2);
+        doReturn(agg2).when(temperatureAnomaliesByObservationsGroupService).calculateAnomalies(agg3, 10, 5.0);
 
         // Running
 
@@ -127,7 +126,7 @@ public class TemperatureAnomaliesByObservationsGroupServiceTests {
 
         // Mocking spy
 
-        when(temperatureAnomaliesByObservationsGroupService.calculateAnomalies(agg3, 10, 5.0)).thenReturn(agg2);
+        doReturn(agg2).when(temperatureAnomaliesByObservationsGroupService).calculateAnomalies(agg3, 10, 5.0);
 
         // Running
 
@@ -141,27 +140,27 @@ public class TemperatureAnomaliesByObservationsGroupServiceTests {
 
     @Test
     public void calculateAnomalies_Test() {
-        TemperatureAnomaliesByTimeWindowService temperatureAnomaliesByTimeWindowService = new TemperatureAnomaliesByTimeWindowService();
+        TemperatureAnomaliesByObservationsGroupService temperatureAnomaliesByObservationsGroupService = spy(TemperatureAnomaliesByObservationsGroupService.class);
 
         // Preparing input - agg1
 
-        MeasurementsTimeWindowAnalyzer agg1 = new MeasurementsTimeWindowAnalyzer();
+        MeasurementsObservationsGroupAnalyzer agg1 = new MeasurementsObservationsGroupAnalyzer();
 
         List<TemperatureMeasurement> measurements1 = new ArrayList<>();
 
-        TemperatureMeasurement anomaly1 = new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:06").toInstant().toEpochMilli(), 35.0);
-        TemperatureMeasurement anomaly2 = new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:11").toInstant().toEpochMilli(), 35.0);
+        TemperatureMeasurement anomaly1 = new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:10").toInstant().toEpochMilli(), 35.0);
+        TemperatureMeasurement anomaly2 = new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:11").toInstant().toEpochMilli(), 36.0);
 
         measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:01").toInstant().toEpochMilli(), 20.0));
         measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:02").toInstant().toEpochMilli(), 20.0));
         measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:03").toInstant().toEpochMilli(), 20.0));
         measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:04").toInstant().toEpochMilli(), 20.0));
         measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:05").toInstant().toEpochMilli(), 20.0));
-        measurements1.add(anomaly1);
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:06").toInstant().toEpochMilli(), 20.0));
         measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:07").toInstant().toEpochMilli(), 20.0));
         measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:08").toInstant().toEpochMilli(), 20.0));
         measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:09").toInstant().toEpochMilli(), 20.0));
-        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:10").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(anomaly1);
         measurements1.add(anomaly2);
 
         List<TemperatureMeasurement> anomalies1 = new ArrayList<>();
@@ -169,13 +168,10 @@ public class TemperatureAnomaliesByObservationsGroupServiceTests {
 
         agg1.setMeasurements(measurements1);
         agg1.setAnomalies(anomalies1);
-        agg1.setAvg(215.0 / 10.0);
-        agg1.setSum(215.0);
-        agg1.setCount(10);
 
         // Preparing output - agg2
 
-        MeasurementsTimeWindowAnalyzer agg2 = new MeasurementsTimeWindowAnalyzer();
+        MeasurementsObservationsGroupAnalyzer agg2 = new MeasurementsObservationsGroupAnalyzer();
 
         List<TemperatureMeasurement> measurements2 = new ArrayList<>();
 
@@ -184,11 +180,11 @@ public class TemperatureAnomaliesByObservationsGroupServiceTests {
         measurements2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:03").toInstant().toEpochMilli(), 20.0));
         measurements2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:04").toInstant().toEpochMilli(), 20.0));
         measurements2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:05").toInstant().toEpochMilli(), 20.0));
-        measurements2.add(anomaly1);
+        measurements2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:06").toInstant().toEpochMilli(), 20.0));
         measurements2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:07").toInstant().toEpochMilli(), 20.0));
         measurements2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:08").toInstant().toEpochMilli(), 20.0));
         measurements2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:09").toInstant().toEpochMilli(), 20.0));
-        measurements2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:10").toInstant().toEpochMilli(), 20.0));
+        measurements2.add(anomaly1);
         measurements2.add(anomaly2);
 
         List<TemperatureMeasurement> anomalies2 = new ArrayList<>();
@@ -197,16 +193,74 @@ public class TemperatureAnomaliesByObservationsGroupServiceTests {
 
         agg2.setMeasurements(measurements2);
         agg2.setAnomalies(anomalies2);
-        agg2.setAvg(250.0 / 11.0);
-        agg2.setSum(250.0);
-        agg2.setCount(11);
 
         // Running
 
-        MeasurementsTimeWindowAnalyzer result = temperatureAnomaliesByTimeWindowService.calculateAnomalies(agg1, 5.0);
+        ArrayList<TemperatureMeasurement> tempList1 = new ArrayList<>();
+        tempList1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:01").toInstant().toEpochMilli(), 20.0));
+        tempList1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:02").toInstant().toEpochMilli(), 20.0));
+        tempList1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:03").toInstant().toEpochMilli(), 20.0));
+        tempList1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:04").toInstant().toEpochMilli(), 20.0));
+        tempList1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:05").toInstant().toEpochMilli(), 20.0));
+        tempList1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:06").toInstant().toEpochMilli(), 20.0));
+        tempList1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:07").toInstant().toEpochMilli(), 20.0));
+        tempList1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:08").toInstant().toEpochMilli(), 20.0));
+        tempList1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:09").toInstant().toEpochMilli(), 20.0));
+        tempList1.add(anomaly1);
+
+        ArrayList<TemperatureMeasurement> tempList2 = new ArrayList<>();
+        tempList2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:02").toInstant().toEpochMilli(), 20.0));
+        tempList2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:03").toInstant().toEpochMilli(), 20.0));
+        tempList2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:04").toInstant().toEpochMilli(), 20.0));
+        tempList2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:05").toInstant().toEpochMilli(), 20.0));
+        tempList2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:06").toInstant().toEpochMilli(), 20.0));
+        tempList2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:07").toInstant().toEpochMilli(), 20.0));
+        tempList2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:08").toInstant().toEpochMilli(), 20.0));
+        tempList2.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:09").toInstant().toEpochMilli(), 20.0));
+        tempList2.add(anomaly1);
+        tempList2.add(anomaly2);
+
+        doReturn(Optional.of(anomaly1)).when(temperatureAnomaliesByObservationsGroupService).calculateAnomalyForGroup(tempList1, 5.0);
+        doReturn(Optional.of(anomaly2)).when(temperatureAnomaliesByObservationsGroupService).calculateAnomalyForGroup(tempList2, 5.0);
+
+        MeasurementsObservationsGroupAnalyzer result = temperatureAnomaliesByObservationsGroupService.calculateAnomalies(agg1, 10, 5.0);
 
         // Verifying and asserting
 
+        verify(temperatureAnomaliesByObservationsGroupService, times(1)).calculateAnomalyForGroup(tempList1, 5.0);
+        verify(temperatureAnomaliesByObservationsGroupService, times(1)).calculateAnomalyForGroup(tempList2, 5.0);
+
         assertEquals(agg2, result, String.format("Expected result: %s and returned result: %s are not the same when analyzing anomalies.", agg2, result));
+    }
+
+    @Test
+    public void calculateAnomalyForGroup_Test() {
+        TemperatureAnomaliesByObservationsGroupService temperatureAnomaliesByObservationsGroupService = new TemperatureAnomaliesByObservationsGroupService();
+
+        // Preparing input - agg1
+
+        List<TemperatureMeasurement> measurements1 = new ArrayList<>();
+
+        TemperatureMeasurement anomaly1 = new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:10").toInstant().toEpochMilli(), 35.0);
+
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:01").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:02").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:03").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:04").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:05").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:06").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:07").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:08").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(new TemperatureMeasurement("room-1", "thermometer-1", Timestamp.valueOf("2024-02-01 00:00:09").toInstant().toEpochMilli(), 20.0));
+        measurements1.add(anomaly1);
+
+        // Running
+
+        Optional<TemperatureMeasurement> expectedResult = Optional.of(anomaly1);
+        Optional<TemperatureMeasurement> result = temperatureAnomaliesByObservationsGroupService.calculateAnomalyForGroup(measurements1, 5.0);
+
+        // Verifying and asserting
+
+        assertEquals(expectedResult, result, String.format("Expected result: %s and returned result: %s are not the same when analyzing anomalies.", expectedResult, result));
     }
 }
